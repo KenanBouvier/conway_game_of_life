@@ -29,6 +29,7 @@ impl Cell {
 fn main() {
     let mut grid = GridType([[Cell::new(CellState::Dead); GRID_SIZE]; GRID_SIZE]);
 
+    grid.0[0][0].state = CellState::Alive;
     grid.0[10][10].state = CellState::Alive;
     grid.0[11][10].state = CellState::Alive;
     grid.0[12][10].state = CellState::Alive;
@@ -37,6 +38,7 @@ fn main() {
 
     let mut alive_cells: HashSet<IVec2> = HashSet::new();
 
+    alive_cells.insert(IVec2 { x: 0, y: 0 });
     alive_cells.insert(IVec2 { x: 10, y: 10 });
     alive_cells.insert(IVec2 { x: 11, y: 10 });
     alive_cells.insert(IVec2 { x: 12, y: 10 });
@@ -65,6 +67,13 @@ fn do_iteration(grid: &mut GridType, alive_cells: &mut HashSet<IVec2>) {
         to_check.insert(*alive);
 
         for adjacent in &all_adjacents {
+            if adjacent.x < 0i32
+                || adjacent.x > GRID_SIZE as i32
+                || adjacent.y < 0
+                || adjacent.y > GRID_SIZE as i32
+            {
+                continue;
+            }
             let res = (*adjacent) + *alive;
             to_check.insert(res);
         }
@@ -75,12 +84,22 @@ fn do_iteration(grid: &mut GridType, alive_cells: &mut HashSet<IVec2>) {
     let mut set_to_change: Vec<(IVec2, CellState)> = vec![];
 
     for position_to_check in to_check {
+        println!("{position_to_check}");
         let cell: Cell = grid.0[position_to_check.x as usize][position_to_check.y as usize];
 
         let mut num_alive = 0;
         // Getting number of adjacent alive
         for translation in &all_adjacents {
             let adj_cell = position_to_check + *translation;
+
+            if adj_cell.x < 0i32
+                || adj_cell.x > GRID_SIZE as i32
+                || adj_cell.y < 0
+                || adj_cell.y > GRID_SIZE as i32
+            {
+                continue;
+            }
+
             match grid.0[adj_cell.x as usize][adj_cell.y as usize].state {
                 CellState::Alive => num_alive += 1,
                 CellState::Dead => (),
