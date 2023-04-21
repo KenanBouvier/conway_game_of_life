@@ -43,29 +43,11 @@ fn main() {
     alive_cells.insert(IVec2 { x: 12, y: 9 });
     alive_cells.insert(IVec2 { x: 11, y: 8 });
 
-    do_iteration(&mut grid, &mut alive_cells);
-    do_iteration(&mut grid, &mut alive_cells);
-    do_iteration(&mut grid, &mut alive_cells);
-    do_iteration(&mut grid, &mut alive_cells);
-    do_iteration(&mut grid, &mut alive_cells);
+    // println!("{:#?}", alive_cells);
     do_iteration(&mut grid, &mut alive_cells);
 }
 
 fn do_iteration(grid: &mut GridType, alive_cells: &mut HashSet<IVec2>) {
-    // let mut grid = GridType([[Cell::new(CellState::Dead); GRID_SIZE]; GRID_SIZE]);
-    //
-    // grid.0[5][5].state = CellState::Alive;
-    // grid.0[6][5].state = CellState::Alive;
-    // grid.0[6][6].state = CellState::Alive;
-    //
-    // let mut alive_cells: HashSet<IVec2> = HashSet::new();
-    //
-    // alive_cells.insert(IVec2 { x: 5, y: 5 });
-    // alive_cells.insert(IVec2 { x: 6, y: 5 });
-    // alive_cells.insert(IVec2 { x: 6, y: 6 });
-
-    println!("{:#?}", alive_cells);
-
     let all_adjacents: Vec<IVec2> = vec![
         IVec2 { x: 0, y: -1 },                         //up
         IVec2 { x: 0, y: 1 },                          //down
@@ -77,31 +59,26 @@ fn do_iteration(grid: &mut GridType, alive_cells: &mut HashSet<IVec2>) {
         IVec2 { x: -1, y: 0 } + IVec2 { x: 0, y: 1 },  // left + down
     ];
 
-    let mut to_check_positions: Vec<IVec2> = vec![];
-    let mut visited: HashSet<IVec2> = HashSet::new();
+    let mut to_check: HashSet<IVec2> = HashSet::new();
 
     for alive in alive_cells.iter() {
-        to_check_positions.push(*alive);
-        visited.insert(*alive);
+        to_check.insert(*alive);
 
         for adjacent in &all_adjacents {
             let res = (*adjacent) + *alive;
-            if visited.contains(&res) {
-                continue;
-            }
-            visited.insert(res);
-            to_check_positions.push(res);
+            to_check.insert(res);
         }
     }
+    dbg!(&to_check.len());
+    // diagnostics(&to_check);
 
     let mut set_to_change: Vec<(IVec2, CellState)> = vec![];
 
-    for position_to_check in to_check_positions {
+    for position_to_check in to_check {
         let cell: Cell = grid.0[position_to_check.x as usize][position_to_check.y as usize];
 
         let mut num_alive = 0;
         // Getting number of adjacent alive
-
         for translation in &all_adjacents {
             let adj_cell = position_to_check + *translation;
             match grid.0[adj_cell.x as usize][adj_cell.y as usize].state {
@@ -142,9 +119,10 @@ fn do_iteration(grid: &mut GridType, alive_cells: &mut HashSet<IVec2>) {
                 }
             }
         }
-        for to_change_item in set_to_change.iter() {
-            grid.0[to_change_item.0.x as usize][to_change_item.0.y as usize]
-                .change_state(to_change_item.1);
-        }
     }
+    for to_change_item in set_to_change.iter() {
+        grid.0[to_change_item.0.x as usize][to_change_item.0.y as usize]
+            .change_state(to_change_item.1);
+    }
+    println!("{:#?}", alive_cells);
 }
