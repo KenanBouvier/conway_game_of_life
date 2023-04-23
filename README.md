@@ -15,6 +15,8 @@ Main params to edit:
 - SQUARE_WIDTH -> size of cell
 - PADDING -> How the cells are spread (set to 0 for solid background).
 
+NB: Program will close when leaving the grid
+
 
 ## The Logic
 

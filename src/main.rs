@@ -2,8 +2,8 @@ use macroquad::prelude::*;
 use std::collections::HashSet;
 
 const GRID_SIZE: usize = 200;
-const SQUARE_WIDTH: f32 = 30f32;
-const PADDING: f32 = 2f32;
+const SQUARE_WIDTH: f32 = 20f32;
+const PADDING: f32 = 1f32;
 const MULTIPLIER: i32 = (SQUARE_WIDTH + PADDING) as i32;
 
 #[derive(Copy, Clone, Debug)]
@@ -122,6 +122,16 @@ async fn main() {
     }
 }
 
+fn check_out_bounds(res: IVec2) -> bool {
+    if res.x < 0 || res.x > GRID_SIZE as i32 {
+        return true;
+    }
+    if res.y < 0 || res.y > GRID_SIZE as i32 {
+        return true;
+    }
+    return false;
+}
+
 fn do_iteration(grid: &mut GridType, alive_cells: &mut HashSet<Cell>) {
     let all_adjacents: Vec<IVec2> = vec![
         IVec2 { x: 0, y: -1 },                         //up
@@ -142,20 +152,21 @@ fn do_iteration(grid: &mut GridType, alive_cells: &mut HashSet<Cell>) {
 
         for adjacent in &all_adjacents {
             let res = (*adjacent) + alive.position;
+            if check_out_bounds(res) {
+                continue;
+            }
             to_check.insert(res);
         }
     }
     let mut set_to_change: Vec<Cell> = vec![];
 
     for position_to_check in to_check {
-        println!("{position_to_check}");
         let cell: Cell = grid.0[position_to_check.x as usize][position_to_check.y as usize];
 
         let mut num_alive = 0;
         // Getting number of adjacent alive
         for translation in &all_adjacents {
             let adj_cell = position_to_check + *translation;
-
             if adj_cell.x < 0i32
                 || adj_cell.x > GRID_SIZE as i32
                 || adj_cell.y < 0
