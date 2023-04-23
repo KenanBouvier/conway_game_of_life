@@ -2,6 +2,8 @@
 
 This is an implementation of Conway's famous game of life.
 
+See further info here: https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life
+
 
 ## Usage
 You can interact with the cells, to turn them on/off.
@@ -40,7 +42,7 @@ f(x){x*multiplier} where x is the index position and f(x) is world position. The
 Using this transformation makes the changing of our previous variables completely flexible allowing us to scale our 2d grid to much bigger sizes.
 
 
-# Possible extension/variation of program
+#### Possible extension/variation of program
 
 - Instead of 1 neighbours killing the cell, the cell remains alive but instead 'stagnant'
 - This means that the cell is not considered to "reproduce" for other adjacent cells.
