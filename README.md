@@ -2,9 +2,16 @@
 
 This is an implementation of Conway's famous game of life.
 
+
+## Usage
 You can interact with the cells, to turn them on/off.
 Press <Space> to simulate a generation.
 Press <R> to reset map;
+
+Main params to edit:
+- GRID_SIZE -> nxn
+- SQUARE_WIDTH -> size of cell
+- PADDING -> How the cells are spread (set to 0 for solid background).
 
 
 ## The Logic

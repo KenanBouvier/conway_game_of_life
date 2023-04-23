@@ -3,7 +3,8 @@ use std::collections::HashSet;
 
 const GRID_SIZE: usize = 200;
 const SQUARE_WIDTH: f32 = 30f32;
-const MULTIPLIER: i32 = (SQUARE_WIDTH + 2f32) as i32;
+const PADDING: f32 = 2f32;
+const MULTIPLIER: i32 = (SQUARE_WIDTH + PADDING) as i32;
 
 #[derive(Copy, Clone, Debug)]
 struct GridType([[Cell; GRID_SIZE]; GRID_SIZE]);
