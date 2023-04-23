@@ -1,8 +1,9 @@
 use macroquad::prelude::*;
 use std::collections::HashSet;
 
-const GRID_SIZE: usize = 50;
-const SQUARE_WIDTH: f32 = 25f32;
+const GRID_SIZE: usize = 200;
+const SQUARE_WIDTH: f32 = 30f32;
+const MULTIPLIER: i32 = (SQUARE_WIDTH + 2f32) as i32;
 
 #[derive(Copy, Clone, Debug)]
 struct GridType([[Cell; GRID_SIZE]; GRID_SIZE]);
@@ -33,10 +34,9 @@ impl Cell {
             CellState::Alive => YELLOW,
             CellState::Dead => BLACK,
         };
-        let multiplier = 30i32;
         draw_rectangle(
-            (self.position.x * multiplier) as f32,
-            (self.position.y * multiplier) as f32,
+            (self.position.x * MULTIPLIER) as f32,
+            (self.position.y * MULTIPLIER) as f32,
             SQUARE_WIDTH,
             SQUARE_WIDTH,
             color,
@@ -51,10 +51,23 @@ impl Cell {
 fn window_conf() -> Conf {
     Conf {
         window_title: "Breakout".to_owned(),
-        // fullscreen: true,
-        window_height: 800,
-        window_width: 1000,
+        fullscreen: true,
+        // window_height: 800,
+        // window_width: 1000,
         ..Default::default()
+    }
+}
+
+fn init_grid(grid: &mut GridType) {
+    // TODO must go through grid and set the positions as correcgt
+    for i in 0..GRID_SIZE {
+        for j in 0..GRID_SIZE {
+            grid.0[i][j].position = IVec2 {
+                x: i as i32,
+                y: j as i32,
+            };
+            grid.0[i][j].state = CellState::Dead;
+        }
     }
 }
 
@@ -63,45 +76,8 @@ async fn main() {
     let mut grid =
         GridType([[(Cell::new(CellState::Dead, IVec2 { x: 0, y: 0 })); GRID_SIZE]; GRID_SIZE]);
 
-    // TODO must go through grid and set the positions as correcgt
-    for i in 0..GRID_SIZE {
-        for j in 0..GRID_SIZE {
-            grid.0[i][j].position = IVec2 {
-                x: i as i32,
-                y: j as i32,
-            };
-        }
-    }
-
-    grid.0[10][10].state = CellState::Alive;
-    grid.0[11][10].state = CellState::Alive;
-    grid.0[12][10].state = CellState::Alive;
-    grid.0[12][9].state = CellState::Alive;
-    grid.0[11][8].state = CellState::Alive;
-
-    let mut alive_cells: HashSet<IVec2> = HashSet::new();
-    let mut alive_cells2: HashSet<Cell> = HashSet::new();
-
-    alive_cells2.insert(Cell {
-        state: CellState::Alive,
-        position: IVec2 { x: 10, y: 10 },
-    });
-    alive_cells2.insert(Cell {
-        state: CellState::Alive,
-        position: IVec2 { x: 11, y: 10 },
-    });
-    alive_cells2.insert(Cell {
-        state: CellState::Alive,
-        position: IVec2 { x: 12, y: 10 },
-    });
-    alive_cells2.insert(Cell {
-        state: CellState::Alive,
-        position: IVec2 { x: 12, y: 9 },
-    });
-    alive_cells2.insert(Cell {
-        state: CellState::Alive,
-        position: IVec2 { x: 11, y: 8 },
-    });
+    init_grid(&mut grid);
+    let mut alive_cells: HashSet<Cell> = HashSet::new();
 
     loop {
         clear_background(WHITE);
@@ -111,13 +87,40 @@ async fn main() {
                 cell.update();
             }
         }
+
         if is_key_pressed(KeyCode::Space) {
-            do_iteration(&mut grid, &mut alive_cells2);
+            do_iteration(&mut grid, &mut alive_cells);
+        }
+
+        if is_key_pressed(KeyCode::R) {
+            init_grid(&mut grid);
+            alive_cells.clear();
+        }
+
+        if is_mouse_button_pressed(MouseButton::Left) {
+            let (mouse_x, mouse_y) = mouse_position();
+
+            // Instead of going through all squares and chcecking intersection, We can use math to get the square instantly
+
+            let (x_div, y_div) = (mouse_x / (MULTIPLIER as f32), mouse_y / (MULTIPLIER as f32));
+            let (x_round, y_round) = (x_div.floor() as usize, y_div.floor() as usize);
+
+            let mut cell = grid.0[x_round][y_round];
+
+            match cell.state {
+                CellState::Alive => {
+                    cell.set_state(CellState::Dead);
+                    alive_cells.remove(&cell);
+                }
+                CellState::Dead => {
+                    cell.set_state(CellState::Alive);
+                    alive_cells.insert(cell);
+                }
+            };
+            grid.0[x_round][y_round] = cell;
         }
         next_frame().await
     }
-    // println!("{:#?}", alive_cells);
-    // do_iteration(&mut grid, &mut alive_cells);
 }
 
 fn do_iteration(grid: &mut GridType, alive_cells: &mut HashSet<Cell>) {
@@ -143,10 +146,6 @@ fn do_iteration(grid: &mut GridType, alive_cells: &mut HashSet<Cell>) {
             to_check.insert(res);
         }
     }
-
-    dbg!(&to_check.len());
-    // diagnostics(&to_check);
-
     let mut set_to_change: Vec<Cell> = vec![];
 
     for position_to_check in to_check {
@@ -200,5 +199,4 @@ fn do_iteration(grid: &mut GridType, alive_cells: &mut HashSet<Cell>) {
         grid.0[to_change_item.position.x as usize][to_change_item.position.y as usize]
             .set_state(to_change_item.state);
     }
-    println!("{:#?}", alive_cells);
 }
