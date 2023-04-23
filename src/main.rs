@@ -100,8 +100,6 @@ async fn main() {
         if is_mouse_button_pressed(MouseButton::Left) {
             let (mouse_x, mouse_y) = mouse_position();
 
-            // Instead of going through all squares and chcecking intersection, We can use math to get the square instantly
-
             let (x_div, y_div) = (mouse_x / (MULTIPLIER as f32), mouse_y / (MULTIPLIER as f32));
             let (x_round, y_round) = (x_div.floor() as usize, y_div.floor() as usize);
 
