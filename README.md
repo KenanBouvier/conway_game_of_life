@@ -1,21 +1,29 @@
 # Conway's game of life
 
-This is an implementation of Conway's famous game of life.
+This is an implementation of Conway's game of life.
+
+<img width="500" alt="Screenshot 2023-04-24 at 00 34 18" src="https://user-images.githubusercontent.com/65245574/233872283-f3f8cd49-f525-4acb-8835-48d346ae6f73.png">
+
 
 See further info here: https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life
 
+## Installation
+
+```bash
+git clone https://github.com/KenanBouvier/conway_game_of_life.git
+cd conway_game_of_life
+cargo run
+```
 
 ## Usage
-You can interact with the cells, to turn them on/off.
-Press <Space> to simulate a generation.
-Press <R> to reset map;
+- [Click] on cells by clicking to turn them on/off.
+- [Space] to simulate a generation.
+- [R] to reset map.
 
 Main params to edit:
 - GRID_SIZE -> nxn
 - SQUARE_WIDTH -> size of cell
 - PADDING -> How the cells are spread (set to 0 for solid background).
-
-NB: Program will close when leaving the grid
 
 
 ## The Logic
