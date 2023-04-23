@@ -29,6 +29,7 @@ impl Cell {
         self.state = state;
     }
 
+<<<<<<< HEAD
     fn draw(&self) {
         let color = match self.state {
             CellState::Alive => YELLOW,
@@ -46,6 +47,26 @@ impl Cell {
     fn update(&self) {
         self.draw();
     }
+=======
+    grid.0[0][0].state = CellState::Alive;
+    grid.0[10][10].state = CellState::Alive;
+    grid.0[11][10].state = CellState::Alive;
+    grid.0[12][10].state = CellState::Alive;
+    grid.0[12][9].state = CellState::Alive;
+    grid.0[11][8].state = CellState::Alive;
+
+    let mut alive_cells: HashSet<IVec2> = HashSet::new();
+
+    alive_cells.insert(IVec2 { x: 0, y: 0 });
+    alive_cells.insert(IVec2 { x: 10, y: 10 });
+    alive_cells.insert(IVec2 { x: 11, y: 10 });
+    alive_cells.insert(IVec2 { x: 12, y: 10 });
+    alive_cells.insert(IVec2 { x: 12, y: 9 });
+    alive_cells.insert(IVec2 { x: 11, y: 8 });
+
+    // println!("{:#?}", alive_cells);
+    do_iteration(&mut grid, &mut alive_cells);
+>>>>>>> main
 }
 
 fn window_conf() -> Conf {
@@ -140,7 +161,18 @@ fn do_iteration(grid: &mut GridType, alive_cells: &mut HashSet<Cell>) {
         to_check.insert(alive.position);
 
         for adjacent in &all_adjacents {
+<<<<<<< HEAD
             let res = (*adjacent) + alive.position;
+=======
+            if adjacent.x < 0i32
+                || adjacent.x > GRID_SIZE as i32
+                || adjacent.y < 0
+                || adjacent.y > GRID_SIZE as i32
+            {
+                continue;
+            }
+            let res = (*adjacent) + *alive;
+>>>>>>> main
             to_check.insert(res);
         }
     }
