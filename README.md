@@ -39,7 +39,7 @@ Main params to edit:
 
 - A core feature that must be implemented is a temporary changed state. What I mean by this is that we want to make the changes to a cell's state after all the checks for changes of state have been done. Else, for example, if one cell should become alive and we set it as such, now another cell won't be able to differentiate if it is alive from the previous frame or current change. Hence, we can keep a vector array storing all the grid positions that will change and update the state after going through our previous checking of state.
 
-# Building the UI
+## UI
 
 Used Macroquad to render the shapes as it's pretty minimal.
 
