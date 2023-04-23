@@ -147,22 +147,12 @@ fn do_iteration(grid: &mut GridType, alive_cells: &mut HashSet<Cell>) {
     let mut set_to_change: Vec<Cell> = vec![];
 
     for position_to_check in to_check {
-        println!("{position_to_check}");
         let cell: Cell = grid.0[position_to_check.x as usize][position_to_check.y as usize];
 
         let mut num_alive = 0;
         // Getting number of adjacent alive
         for translation in &all_adjacents {
             let adj_cell = position_to_check + *translation;
-
-            if adj_cell.x < 0i32
-                || adj_cell.x > GRID_SIZE as i32
-                || adj_cell.y < 0
-                || adj_cell.y > GRID_SIZE as i32
-            {
-                continue;
-            }
-
             match grid.0[adj_cell.x as usize][adj_cell.y as usize].state {
                 CellState::Alive => num_alive += 1,
                 CellState::Dead => (),
