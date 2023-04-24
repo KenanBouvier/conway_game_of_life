@@ -91,9 +91,9 @@ async fn main() {
         }
 
         if is_key_pressed(KeyCode::Space) {
-            dbg!(&alive_cells);
             do_iteration(&mut grid, &mut alive_cells);
         }
+            do_iteration(&mut grid, &mut alive_cells);
 
         if is_key_pressed(KeyCode::R) {
             init_grid(&mut grid);
@@ -105,8 +105,6 @@ async fn main() {
 
             let (x_div, y_div) = (mouse_x / (MULTIPLIER as f32), mouse_y / (MULTIPLIER as f32));
             let (x_round, y_round) = (x_div.floor() as usize, y_div.floor() as usize);
-
-            println!("Index: {x_round}:{y_round}");
 
             let mut cell = grid.0[x_round][y_round];
 
@@ -127,10 +125,10 @@ async fn main() {
 }
 
 fn check_out_bounds(res: IVec2) -> bool {
-    if res.x < 0 || res.x > GRID_SIZE as i32 {
+    if res.x < 0 || res.x >= GRID_SIZE as i32 {
         return true;
     }
-    if res.y < 0 || res.y > GRID_SIZE as i32 {
+    if res.y < 0 || res.y >= GRID_SIZE as i32 {
         return true;
     }
     return false;
@@ -171,14 +169,9 @@ fn do_iteration(grid: &mut GridType, alive_cells: &mut HashSet<Cell>) {
         // Getting number of adjacent alive
         for translation in &all_adjacents {
             let adj_cell = position_to_check + *translation;
-            if adj_cell.x < 0i32
-                || adj_cell.x > GRID_SIZE as i32
-                || adj_cell.y < 0
-                || adj_cell.y > GRID_SIZE as i32
-            {
+            if check_out_bounds(adj_cell){
                 continue;
             }
-
             match grid.0[adj_cell.x as usize][adj_cell.y as usize].state {
                 CellState::Alive => num_alive += 1,
                 CellState::Dead => (),
