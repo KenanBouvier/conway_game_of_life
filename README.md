@@ -6,8 +6,6 @@ An implementation of Conway's game of life.
 https://user-images.githubusercontent.com/65245574/234054731-7a448a57-5aa8-4fd0-86e7-f71ff2061e2a.mov
 
 
-<img width="500" alt="Screenshot 2023-04-24 at 00 34 18" src="https://user-images.githubusercontent.com/65245574/233872283-f3f8cd49-f525-4acb-8835-48d346ae6f73.png">
-
 I came across the model of Cellular automaton from which I saw Conway's game of life. 
 
 Some links:
