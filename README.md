@@ -17,7 +17,8 @@ https://en.wikipedia.org/wiki/Cellular_automaton
 ```bash
 git clone https://github.com/KenanBouvier/conway_game_of_life.git
 cd conway_game_of_life
-cargo run
+cargo build --release
+./target/release/conway_game_of_life
 ```
 
 ## Usage
