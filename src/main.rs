@@ -5,6 +5,7 @@ const GRID_SIZE: usize = 200;
 const SQUARE_WIDTH: f32 = 20f32;
 const PADDING: f32 = 1f32;
 const MULTIPLIER: i32 = (SQUARE_WIDTH + PADDING) as i32;
+const FPS: f64 = 20f64;
 
 #[derive(Copy, Clone, Debug)]
 struct GridType([[Cell; GRID_SIZE]; GRID_SIZE]);
@@ -19,6 +20,11 @@ struct Cell {
 enum CellState {
     Dead,
     Alive,
+}
+
+enum GameState {
+    Paused,
+    Simulating,
 }
 
 impl Cell {
@@ -77,9 +83,12 @@ async fn main() {
     let mut grid =
         GridType([[(Cell::new(CellState::Dead, IVec2 { x: 0, y: 0 })); GRID_SIZE]; GRID_SIZE]);
     let mut alive_cells: HashSet<Cell> = HashSet::new();
+    let mut game_state = GameState::Paused;
 
     init_grid(&mut grid);
     init_gosper_glider(&mut alive_cells, &mut grid);
+
+    let mut prev_tenth_sec = 0f64;
 
     loop {
         clear_background(WHITE);
@@ -90,36 +99,53 @@ async fn main() {
             }
         }
 
-        if is_key_pressed(KeyCode::Space) {
-            do_iteration(&mut grid, &mut alive_cells);
-        }
-            do_iteration(&mut grid, &mut alive_cells);
-
-        if is_key_pressed(KeyCode::R) {
-            init_grid(&mut grid);
-            alive_cells.clear();
-        }
-
-        if is_mouse_button_pressed(MouseButton::Left) {
-            let (mouse_x, mouse_y) = mouse_position();
-
-            let (x_div, y_div) = (mouse_x / (MULTIPLIER as f32), mouse_y / (MULTIPLIER as f32));
-            let (x_round, y_round) = (x_div.floor() as usize, y_div.floor() as usize);
-
-            let mut cell = grid.0[x_round][y_round];
-
-            match cell.state {
-                CellState::Alive => {
-                    cell.set_state(CellState::Dead);
-                    alive_cells.remove(&cell);
+        match game_state {
+            GameState::Paused => {
+                if is_key_pressed(KeyCode::Space) {
+                    game_state = GameState::Simulating;
                 }
-                CellState::Dead => {
-                    cell.set_state(CellState::Alive);
-                    alive_cells.insert(cell);
+                if is_key_pressed(KeyCode::R) {
+                    init_grid(&mut grid);
+                    alive_cells.clear();
                 }
-            };
-            grid.0[x_round][y_round] = cell;
+
+                if is_mouse_button_pressed(MouseButton::Left) {
+                    let (mouse_x, mouse_y) = mouse_position();
+
+                    let (x_div, y_div) =
+                        (mouse_x / (MULTIPLIER as f32), mouse_y / (MULTIPLIER as f32));
+                    let (x_round, y_round) = (x_div.floor() as usize, y_div.floor() as usize);
+
+                    let mut cell = grid.0[x_round][y_round];
+
+                    match cell.state {
+                        CellState::Alive => {
+                            cell.set_state(CellState::Dead);
+                            alive_cells.remove(&cell);
+                        }
+                        CellState::Dead => {
+                            cell.set_state(CellState::Alive);
+                            alive_cells.insert(cell);
+                        }
+                    };
+                    grid.0[x_round][y_round] = cell;
+                }
+            }
+            GameState::Simulating => {
+                if is_key_pressed(KeyCode::Space) {
+                    game_state = GameState::Paused;
+                }
+                let cur = get_time();
+                let tenth_sec = cur % 1f64;
+                let extracted_tenth_sec = (tenth_sec * FPS).round() / FPS;
+
+                if extracted_tenth_sec != prev_tenth_sec {
+                    prev_tenth_sec = extracted_tenth_sec;
+                    do_iteration(&mut grid, &mut alive_cells);
+                }
+            }
         }
+
         next_frame().await
     }
 }
@@ -169,7 +195,7 @@ fn do_iteration(grid: &mut GridType, alive_cells: &mut HashSet<Cell>) {
         // Getting number of adjacent alive
         for translation in &all_adjacents {
             let adj_cell = position_to_check + *translation;
-            if check_out_bounds(adj_cell){
+            if check_out_bounds(adj_cell) {
                 continue;
             }
             match grid.0[adj_cell.x as usize][adj_cell.y as usize].state {
