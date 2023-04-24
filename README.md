@@ -23,7 +23,7 @@ cargo build --release
 
 ## Usage
 - [Click] on cells by clicking to turn them on/off.
-- [Space] to simulate a generation.
+- [Space] to start/stop simulation.
 - [R] to reset map.
 
 Main params to edit:
