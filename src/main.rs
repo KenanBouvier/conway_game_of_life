@@ -51,10 +51,10 @@ impl Cell {
 
 fn window_conf() -> Conf {
     Conf {
-        window_title: "Breakout".to_owned(),
-        fullscreen: true,
-        // window_height: 800,
-        // window_width: 1000,
+        window_title: "Conway's Game Of Life".to_owned(),
+        // fullscreen: true,
+        window_height: 800,
+        window_width: 1100,
         ..Default::default()
     }
 }
@@ -76,9 +76,10 @@ fn init_grid(grid: &mut GridType) {
 async fn main() {
     let mut grid =
         GridType([[(Cell::new(CellState::Dead, IVec2 { x: 0, y: 0 })); GRID_SIZE]; GRID_SIZE]);
+    let mut alive_cells: HashSet<Cell> = HashSet::new();
 
     init_grid(&mut grid);
-    let mut alive_cells: HashSet<Cell> = HashSet::new();
+    init_gosper_glider(&mut alive_cells, &mut grid);
 
     loop {
         clear_background(WHITE);
@@ -90,6 +91,7 @@ async fn main() {
         }
 
         if is_key_pressed(KeyCode::Space) {
+            dbg!(&alive_cells);
             do_iteration(&mut grid, &mut alive_cells);
         }
 
@@ -103,6 +105,8 @@ async fn main() {
 
             let (x_div, y_div) = (mouse_x / (MULTIPLIER as f32), mouse_y / (MULTIPLIER as f32));
             let (x_round, y_round) = (x_div.floor() as usize, y_div.floor() as usize);
+
+            println!("Index: {x_round}:{y_round}");
 
             let mut cell = grid.0[x_round][y_round];
 
@@ -218,5 +222,51 @@ fn do_iteration(grid: &mut GridType, alive_cells: &mut HashSet<Cell>) {
     for to_change_item in set_to_change.iter() {
         grid.0[to_change_item.position.x as usize][to_change_item.position.y as usize]
             .set_state(to_change_item.state);
+    }
+}
+
+fn init_gosper_glider(alive_cells: &mut HashSet<Cell>, grid: &mut GridType) {
+    let start_cells = vec![
+        (23, 16),
+        (29, 14),
+        (24, 14),
+        (19, 15),
+        (31, 16),
+        (22, 13),
+        (31, 12),
+        (25, 15),
+        (25, 17),
+        (19, 16),
+        (33, 11),
+        (19, 17),
+        (10, 15),
+        (44, 14),
+        (29, 15),
+        (43, 14),
+        (33, 16),
+        (20, 18),
+        (9, 15),
+        (24, 18),
+        (25, 16),
+        (20, 14),
+        (9, 16),
+        (33, 12),
+        (21, 19),
+        (30, 13),
+        (33, 17),
+        (29, 13),
+        (10, 16),
+        (43, 13),
+        (21, 13),
+        (30, 15),
+        (30, 14),
+        (26, 16),
+        (44, 13),
+        (22, 19),
+    ];
+
+    for (x, y) in start_cells {
+        grid.0[x][y].state = CellState::Alive;
+        alive_cells.insert(grid.0[x][y]);
     }
 }
